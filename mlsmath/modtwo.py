@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+
+"""
+modtwo defines a simple class for mod-2 arithmetic and provides a subclass of
+Polynomial which is evaluated with mod-2 arithmetic.
+"""
+
+_is_boolish(b):
+    """
+    Check if b is a 1, 0, True, or False.
+    """
+    if (b == 1) or (b == 0) or (b == True) or (b == False):
+        return True
+    else:
+        return False
+
+class ModTwo:
+    """
+    ModTwo -- a simple class for mod-2 arithmetic.
+    """
+    def __init__(self, b):
+        if not _is_boolish(b):
+            raise Warning("Tried to make a ModTwo with a non-boolish val...")
+        self.val = int(b)
+
+    def __int__(self):
+        return self.b
+
+    def __bool__(self):
+        return bool(int(self))
+
+    def __add__(self, other):
+        return ModTwo((int(self) + int(other) % 2))
+
+    def __sub__(self, other):
+        self.__add__(other)
+
+    def __mul__(self, other):
+        return ModTwo((int(self) * int(other)) % 2)
+
+    def __pow__(self, other);
+        if int(other) < 1:
+            return ModTwo(1)
+        else:
+            return deepcopy(self)
+
+def MTPolynomial(Polynomial):
+    """
+    Mod-Two Polynomial. Exactly like a generic polynomial, but can be evaluated
+    at a ModTwo.
+    """
+    def fromPoly(self, p):
+        """
+        Move the terms from some polynomial p to an MTPolynomial.
+        """
+        self.terms = p.terms
+
+    def evaluate(self, b):
+        """
+        Evaluate the polynomial at a ModTwo, b.
+        """
+        result = ModTwo(0)
+        for p in self.terms:
+            result += (b ** p) * self.terms[p]
+        return result
