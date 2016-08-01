@@ -6,16 +6,6 @@ Needed to generate M-sequence of arbitrary length.
 
 from collections import defaultdict
 
-def _is_a_num(n):
-    """
-    Determine whether n is an int or a float.
-    """
-    if type(n) == type(0):
-       return True
-    if type(n) == type(1.0):
-       return True
-    return False
-
 class Term:
     """
     A "term" is  a coefficient paired with an associated power.
@@ -23,6 +13,12 @@ class Term:
     def __init__(self, pwr=0, coef=0):
         self.pwr  = pwr
         self.coef = coef
+
+    def __repr__(self):
+        """
+        Return a pretty representation of term self.
+        """
+        return str(self.coef) + "x^" + str(self.pwr)
 
     def __add__(self, other):
         if other.pwr == self.pwr:
@@ -33,47 +29,37 @@ class Term:
     def __sub__(self, other):
         return self + (-1 * other)        
  
-    def __mul__(self, other):
+    def __imul__(self, n):
         """
-        Multiply a term by a number or another term.
-        This function invokes _mul_num or _mul_term accordingly.
-        """
-        if _is_a_num(other):
-            return self._mul_num(other)
-
-        if type(other) == type(self):
-            return self._mul_term(other)
-
-    def _mul_num(self, n):
-        """
-        Multiply a term by a number.
+        Multiply a term by an integer.
         """
         return Term(self.pwr, self.coef * n)
     
-    def _mul_term(self, other):
+    def __fmul__(self, n):
+        """
+        Multiply a term by a float.
+        """
+        return Term(self.pwr, float(self.coef) * n)
+
+    def __mul__(self, other):
         """
         Multiply a term by another term.
         """
         return Term(self.pwr + other.pwr, self.coef * other.coef)
 
-    def __div__(self, other):
+    def __idiv__(self, other):
         """
-        Divide a term by a number or another term.
-        This function invokes _div_num or _div_term accordingly.
-        """
-        if (_is_a_num(other)):
-            return self._div_num(other)
-       
-        if type(self) == type(other):
-            return self._div_term(other)
-
-    def _div_num(self, other):
-        """
-        Divide a term by a number.
+        Divide a term by an integer.
         """
         return Term(self.pwr, self.coef / other)
 
-    def _div_term(self, other):
+    def __fdiv__(self, f):
+        """
+        Divide a term by a float.
+        """
+        return Term(self.pwr, self.coef / other)
+
+    def __div__(self, other):
         """
         Divide a term by another term. If the degree of other is higher than
         the degree of self, then return None.
@@ -82,6 +68,18 @@ class Term:
         if new_pwr < 0:
             return None
         return Term(new_pwr, self.coef / other.coef)        
+
+    def __ipow__(self, i):
+        """
+        Raise a term to the i-th power.
+        """
+        return Term(self.pwr * i, self.coef ** i)
+
+    def __fpow__(self, f):
+        """
+        Default to ipow behavior, but round f.
+        """
+        return self ** (int(f))
 
     def is_null(self):
         if self.coef == 0:
@@ -94,13 +92,48 @@ class Polynomial:
     combined with some simple arithmetic operations.
     """
     def __init__(self, terms=[]):
-        self.terms = defaultdict([], lambda _: 0)
+        self.terms = defaultdict(lambda: 0, [])
         if terms == []:
             return
 
         poly = map(lambda t: (t.pwr, t.coef), terms)
         for pwr, coef in poly:
             self.terms[pwr] += coef 
+   
+    def __repr__(self):
+        """
+        Pretty-print our polynomial.
+        """
+        rep = ""
+        for pwr in reversed(sorted(self.terms.keys())):
+            rep += str(self[pwr]) + "x^" + str(pwr) + " + "
+        
+        # Strip trailing " + "
+        return rep[:-3] 
+
+    def __str__(self):
+        return repr(self)
+
+    def __getitem__(self, pwr):
+        """
+        Indexing a polynomial returns the coefficient associated with a term of
+        a given exponent.
+        """
+        return self.terms[pwr]
+
+    def __setitem__(self, pwr, coef):
+        """
+        Setting the p-th member of a polynomial changes the coefficient of the
+        p-th degree term.
+        """
+        self.terms[pwr] = coef
+
+    def __iter__(self):
+        """
+        Iterator definition is consistent with __getitem__; just points to
+        terms.
+        """
+        return self.terms.__iter__()
 
     def __add__(self, other):
         """
@@ -124,7 +157,7 @@ class Polynomial:
         """
         Add two polynomials.
         """
-        new = defaultdict([], lambda _: 0)
+        new = Polynomial()
         for pwr in self:
             new[pwr] += self[pwr]
         for pwr in other:
@@ -143,8 +176,6 @@ class Polynomial:
             return self._mul_poly(other)
         if type(other) == type(Term()):
             return self._mul_term(Term())
-        if _is_a_num(other):
-            return self._mul_num(other)
       
     def _mul_term(self, other):
         """
@@ -164,11 +195,17 @@ class Polynomial:
             new += self * Term(pwr, other.terms[pwr])
         return new
 
-    def _mul_num(self, other):
+    def __imul__(self, i):
         """
-        Multiply a polynomial by a number.
+        Multiply a polynomial by an integer
         """
-        return self._mul_poly(Term(0, other)) 
+        return self._mul_poly(Term(0, i))
+
+    def __fmul__(self, f):
+        """
+        Multiply a polynomial by a float
+        """
+        return self._mul_poly(Term(0, f)) 
 
     def __div__(self, other):
         """
@@ -179,8 +216,6 @@ class Polynomial:
             return self._div_poly(other)
         if type(other) == type(term()):
             return self._div_term(other)
-        if _is_a_num(other):
-            return self._div_num(other)
 
     def _div_poly(self, other):
         """
@@ -199,7 +234,7 @@ class Polynomial:
 
         return quotient
 
-    def _div_term(self, other);
+    def _div_term(self, other):
         """
         Divide a polynomial by a term.
         """
@@ -208,13 +243,22 @@ class Polynomial:
             new.terms[pwr + other.pwr] = self.terms[pwr] * other.coef
         return new
  
-    def _div_num(self, other):
+    def __idiv__(self, other):
         """
-        Divide a polynomial by a number.
+        Divide a polynomial by an integer.
         """
         new = Polynomial()
         for pwr in self.terms:
             new.terms[pwr] = self.terms[pwr] / other
+        return new
+
+    def __fdiv__(self, other):
+        """
+        Divide a polynomial by a float.
+        """
+        new = Polynomial()
+        for pwr in self.terms:
+            new[pwr] = float(self[pwr]) / other
         return new
 
     def is_null(self):

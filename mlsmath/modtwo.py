@@ -5,7 +5,7 @@ modtwo defines a simple class for mod-2 arithmetic and provides a subclass of
 Polynomial which is evaluated with mod-2 arithmetic.
 """
 
-_is_boolish(b):
+def _is_boolish(b):
     """
     Check if b is a 1, 0, True, or False.
     """
@@ -23,6 +23,12 @@ class ModTwo:
             raise Warning("Tried to make a ModTwo with a non-boolish val...")
         self.val = int(b)
 
+    def __repr__(self):
+        return str(self.val)
+    
+    def __str__(self):
+        return repr(self)
+
     def __int__(self):
         return self.b
 
@@ -38,7 +44,7 @@ class ModTwo:
     def __mul__(self, other):
         return ModTwo((int(self) * int(other)) % 2)
 
-    def __pow__(self, other);
+    def __pow__(self, other):
         if int(other) < 1:
             return ModTwo(1)
         else:
