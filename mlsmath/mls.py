@@ -75,7 +75,6 @@ def _parse_polynomial(string):
 # Note the null polynomial at the beginning. This makes _generators[degree] valid.
 _generators = [MTPolynomial([])] + _parse_polynomials(GENERATOR_FILE)
 
-# TODO: Test this.
 def make_mls(degree):
     """
     Create a maximum length sequence of a given degree.
@@ -86,4 +85,5 @@ def make_mls(degree):
         raise ValueError("Degrees less than one are meaningless for MLSes.")
 
     generator = generators[degree]
+    # Very wrong -- correct approach is to convert to an LFSR and then eval.
     return list(map(generator.evaluate, list(range(2**degree + 1))))  
