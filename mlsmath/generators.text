@@ -1,0 +1,49 @@
+# This file defines the primitive polynomials used to generate
+# maximum length sequences. We could compute them, but (especially at high 
+# degrees) this adds significantly to the amount of time that it would take
+# to do a single sonar run.
+#
+# The polynomials and their derivation can be found in
+# Abhijit Mitra's "On the Construction of m-Sequences via Primitive
+# Polynomials with a Fast Identification Method."
+#
+# Here is how the file is laid out:
+#
+# Consider some polynomial a(n)x**n + a(n-1)x**(n-1) ... a(0)x**0.
+# To be part of GF(2), a(x) is either 0 or 1 forall x.
+# 
+# This file defines primitve polynomials up to degree 30 for binary fields.
+# For instance, for degree 4, this polynomial is
+# x**4 + x + 1, represented in the file as "4 1 0".
+#
+# These are in order of increasing degree (starting at 1).
+
+1 0
+2 1 0
+3 1 0
+4 1 0 
+5 2 0
+6 1 0
+8 6 5 1 0
+9 4 0
+10 3 0
+11 2 0
+12 7 4 3 0
+13 4 3 1 0
+14 12 11 1 0
+15 1 0
+16 5 3 2 0 
+17 3 0
+18 7 0
+19 6 5 1 0
+20 3 0
+21 2 0
+22 1 0
+23 5 0
+24 4 3 1 0
+25 3 0
+26 8 7 1 0
+27 8 7 1 0
+28 3 0
+29 2 0
+30 16 15 1 0

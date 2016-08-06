@@ -14,10 +14,11 @@ make it completely ineffective.
 Worst case scenario means doing some interesting math and having python code re-usable for other projects.
 
 ## Current Progress
-M-sequence generation is the "hard part." Most of the abstractions required to do the actual generation are in place.
+Polynomial abstraction works.
 
 ### Remaining work:
-* Kronecker-Schubert Factorizer
-* Audio TX/RX
+* M-sequence generation is presently very wrong.
+* Audio TX/RX.
+* DSP
 * Testing
 
