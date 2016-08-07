@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from polynomial import Term, Polynomial
+from mlsmath.polynomial import Term, Polynomial
 from copy       import deepcopy
 
 """

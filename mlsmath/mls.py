@@ -1,6 +1,6 @@
-from lfsr import LFSR
-from polynomial import Term
-from modtwo     import MTPolynomial 
+from mlsmath.lfsr import LFSR
+from mlsmath.polynomial import Term
+from mlsmath.modtwo     import MTPolynomial 
 
 """
 mls defines make_mls, which creates a maximum length sequence from a given
@@ -10,7 +10,7 @@ The top of the file contains some parsing functions to read the generator
 polynomial definitions.
 """
 
-GENERATOR_FILE = "generators.text"
+GENERATOR_FILE = "mlsmath/generators.text"
 
 def _strip_after_pound(string):
     """

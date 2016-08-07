@@ -3,7 +3,7 @@ LFSR -- linear feedback shift register.
 Define an LFSR class and how to use it.
 """
 
-from modtwo import ModTwo
+from mlsmath.modtwo import ModTwo
 
 class LFSR:
     """
