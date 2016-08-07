@@ -1,5 +1,6 @@
-from polynomial import *
-from modtwo     import *
+from lfsr import LFSR
+from polynomial import Term
+from modtwo     import MTPolynomial 
 
 """
 mls defines make_mls, which creates a maximum length sequence from a given
@@ -84,6 +85,7 @@ def make_mls(degree):
     if degree < 1:
         raise ValueError("Degrees less than one are meaningless for MLSes.")
 
-    generator = generators[degree]
-    # Very wrong -- correct approach is to convert to an LFSR and then eval.
-    return list(map(generator.evaluate, list(range(2**degree + 1))))  
+    generator = _generators[degree]
+    lfsr      = LFSR(generator)
+
+    return lfsr.evaluate(2**degree - 1)
