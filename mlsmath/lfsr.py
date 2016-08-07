@@ -31,35 +31,30 @@ class LFSR:
         self.highest = max(self.offsets) 
         self.offsets.remove(self.highest)
 
-    def evaluate(self, length, initial_seq=None):
+    def evaluate(self, length, initial_st=None):
         """
         From a sequence of initial numbers, create a sequence of 1's and 0's of
         length length. If a primitive polynomial is used as the input to the
         LFSR, then the generated sequence will be an m-sequence.
         """
 
-        # Default initial sequence is just 000...1.
-        if initial_seq is None:
-            initial_seq = ([0] * (self.highest - 2)) + [1]
+        # Default initial sequence is all 1's.
+        if initial_st is None:
+            initial_st = [1] * (self.highest)
 
-        # Make sure everything is a ModTwo.
-        initial_seq = list(map(ModTwo, initial_seq))
-
-        # Make sure we have enough values.
-        if len(initial_seq) < (self.highest - 1):
+        # Make sure we have enough values:
+        if len(initial_st) < (self.highest):
             raise ValueError("Initial sequence is of insufficient length.")
 
-        out_seq = initial_seq
-        subseq_size = self.highest - 1
+        # Make sure everything is a ModTwo.
+        reg_state = list(map(ModTwo, initial_st))
 
-        for _ in range(length - len(initial_seq)):
-            # Examine the most recent necessary members.
-            next_val = ModTwo(0)
-            subseq   = out_seq[-subseq_size:]
+        output_seq = []
+        for _ in range(length):
+            next_state = ModTwo(0)
             for i in self.offsets:
-                next_val += subseq[i]
-
-            out_seq.append(next_val)
-
-        return list(map(int, out_seq)) 
-     
+               next_state += reg_state[i]
+            output_seq.append(reg_state[0])
+            reg_state = reg_state[1:] + [next_state]
+        
+        return list(map(int, output_seq))
