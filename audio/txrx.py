@@ -1,6 +1,7 @@
 import pyaudio
 import numpy as np
 from time import sleep
+import array
 
 """
 TXRX:
@@ -14,19 +15,24 @@ Specifically, this file defines sonar_probe(mls).
 
 CHANNELS = 1
 RATE     = 44100
-FORMAT   = pyaudio.paInt32
-CHUNK    = 1024
+FORMAT   = pyaudio.paInt16
+CHUNK    = 2048
 
 class _Buffer:
     """
-    A buffer with a notion of position. This allows us to treat lists and an
+    A buffer with a notion of position. This allows us to treat arrays and an
     index as one object rather than juggling around both and relating them
     explictly.
+
+    Returns an array slice.
     """
     def __init__(self, contents, overrun_default=None):
         """
         Store contents and position and the default value if we try to read
-        outside of the buffer.
+        outside of the buffer. Takes an array as contents.
+
+        For now, uses UInt16 as the default type. Overrun_default must be
+        coercible to a UInt16.
         """
         self.contents = contents
         self.cursor = 0
@@ -48,12 +54,13 @@ class _Buffer:
         else:
             if self.overrun_default is not None:
                 if self.cursor == (len(self) - 1):
-                    return [self.overrun_default] * n
+                    return array.array('h', [self.overrun_default] * n)
                 else:
                     already_consumed = len(self) - 1 - self.cursor
                     self.cursor = len(self) - 1
                     return self.contents[self.cursor:] + \
-                           [self.overrun_default] * (n - already_consumed)
+                           array.array('h', 
+                                        [self.overrun_default] * (n - already_consumed))
             else:
                 raise IndexError("Requesting too many samples in buffer without default!")
 
@@ -63,18 +70,20 @@ class _Buffer:
 
 def _prepare_for_sound(mls):
     """
-    Re-scale the MLS so that it plays well over speakers -- make sure it's at
-    100% volume.
+    Re-scale the MLS so that is a proper array of bytes. This allows us to use
+    it with an audio device. We assume 16-bit precision.
     """
     new_mls = []
+    int_max = 2**15 - 2 
     for sample in mls:
         if sample == 0:
-            # Min Int32
-            new_mls.append(-2**31)
+            # Min UInt16
+            new_mls.append(-int_max)
         else:
-            # Max Int32
-            new_mls.append(2**31 - 1)
-    return new_mls
+            # Max UInt16
+            new_mls.append(int_max)
+    # 16-bit array.
+    return array.array('h',new_mls)
  
 def sonar_probe(mls):
     """
@@ -89,6 +98,7 @@ def sonar_probe(mls):
     # Simple audio callback.
     def audio_callback(in_data, frame_count, time_info, status):
         data = pulse.consume(frame_count)
+        data = bytes(data)
         recording.extend(in_data)
         if pulse.is_done():
             return (data, pyaudio.paComplete)
@@ -98,7 +108,7 @@ def sonar_probe(mls):
     recording = []
     length = len(mls)
     mls    = _prepare_for_sound(mls)
-    pulse  = _Buffer(bytearray(mls + ([0] * length)), 0)
+    pulse  = _Buffer(mls + array.array('h', ([0] * length)), 0)
     
     audio_ctx = pyaudio.PyAudio()
     stream = audio_ctx.open(format=FORMAT,

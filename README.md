@@ -8,17 +8,13 @@ A high-precision sonar experiment for commodity computer hardware.
 * Correlate against the known M-sequence to find when reflections were received.
 
 ## How well does it work?
-I have no idea! That's why I'm building it. Speaker phase distortions could
-make it completely ineffective.
-
-Worst case scenario means doing some interesting math and having python code re-usable for other projects.
+Fairly well (in simulation)! As for the real world, well, this project aims to find out!
 
 ## Current Progress
-Polynomial abstraction works.
+Polynomial abstraction, M-sequence generation, modulation/demodulation some aspects of audio all work.
 
 ### Remaining work:
-* M-sequence generation is presently very wrong.
-* Audio TX/RX.
-* DSP
-* Testing
+* Clean up / verify audio TX/RX
+* Command line interface
+* More exhaustive testing
 
